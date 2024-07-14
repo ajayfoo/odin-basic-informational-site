@@ -1,33 +1,26 @@
-import { createServer } from "node:http";
-import { readFile } from "node:fs/promises";
+
+import express from 'express'
+const app=express()
 
 const PORT = 3000;
-const getPageForUrl = (url) => {
-  switch (url) {
-    case "/": {
-      return "index.html";
-    }
-    case "/about": {
-      return "about.html";
-    }
-    case "/contact-me": {
-      return "contact-me.html";
-    }
-    default: {
-      return "404.html";
-    }
-  }
-};
+const dirname=import.meta.dirname+'/pages'
 
-const server = createServer(async (req, res) => {
-  const page = getPageForUrl(req.url);
-  console.log(req.url);
-  const pageAsData = await readFile(page);
-  res.writeHead(200, { "Content-Type": "text/html" });
-  res.write(pageAsData);
-  res.end();
+app.use(express.static(import.meta.dirname+'/public'))
+
+app.get('/',(req,res)=>{
+  res.sendFile('./index.html',{root:dirname})
+});
+app.get('/about',(req,res)=>{
+  res.sendFile('./about.html',{root:dirname})
+});
+app.get('/contact-me',(req,res)=>{
+  res.sendFile('./contact-me.html',{root:dirname})
 });
 
-server.listen(PORT, "localhost", () => {
+app.use((req,res,next)=>{
+  res.sendFile('./404.html',{root:dirname})
+})
+
+app.listen(PORT, () => {
   console.log("Server listening on " + PORT);
 });
